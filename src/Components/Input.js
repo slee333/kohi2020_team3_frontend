@@ -16,8 +16,7 @@ const Input = ({
   placeholder,
   required = true,
   value,
-  onChange,
-  type = "text",
+  type = "number",
   className
 }) => (
   <Container
@@ -25,16 +24,14 @@ const Input = ({
     placeholder={placeholder}
     required={required}
     value={value}
-    onChange={onChange}
     type={type}
   />
 );
 
 Input.propTypes = {
-  placeholder: PropTypes.string.isRequired,
+  placeholder: PropTypes.number.isRequired,
   required: PropTypes.bool,
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
+  value: PropTypes.number.isRequired,
   type: PropTypes.string
 };
 
