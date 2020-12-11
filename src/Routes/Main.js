@@ -2,9 +2,19 @@ import React, { useState, Component } from "react";
 import Select from 'react-select';
 import styled from "styled-components";
 import { Helmet } from "react-helmet";
-import Button from "../Components/Button";
+import Button from "react-bootstrap/Button";
+import Spinner from 'react-bootstrap/Spinner'
+import Carousel from "react-bootstrap/Carousel";
 import FatText from "../Components/FatText";
 import axios from 'axios';
+
+import Model1 from "../Components/DNN.png";
+import Model2 from "../Components/asa_adjusted.png";
+import Model3 from "../Components/attention.png";
+// const pic1 = require("../Components/DNN.png");
+// const pic2 = require("../Components/asa_adjusted.png");
+// const pic3 = require("../Components/attention.png");
+
 
 // Wrapper: Place everything at center
 const Wrapper = styled.div`
@@ -49,8 +59,38 @@ const MiniRow = styled.div`
 `;
 
 const Select_cat = styled(Select)`
-    width: 60%;
+    width: 70%;
 `;
+
+const MyCarousel = styled(Carousel)`
+    width: 300px;
+`
+const MyCaption = styled(Carousel.Caption)`
+    color: black;
+    font-weight: bold;
+`
+
+const Title = styled.h1`
+    font-size: 48px;
+    font-weight: bold;
+    width: 100%
+`
+
+const MyInput = styled.input`
+    border: 0;
+    border: ${props => props.theme.boxBorder};
+    border-radius: ${props => props.theme.borderRadius};
+    background-color: white;
+    height: 35px;
+    font-size: 12px;
+    padding: 0px 15px;
+`
+
+const MyButton = styled(Button)`
+    width: 100px;
+`
+
+
 
 const MainPage = () => {
 
@@ -71,6 +111,11 @@ const MainPage = () => {
         { value: 4, label: '4' },
         { value: 5, label: '5' },
     ]
+
+    const modeOptions = [
+        { value: 'death30', label: '30-day in-hospital mortality' },
+        { value: 'icu1', label: 'Prolonged ICU Stay' }
+    ];
 
     const [age, setAge] = useState(40);
     const [asa, setAsa] = useState(1);
@@ -94,7 +139,18 @@ const MainPage = () => {
     const [modelname, setModelname] = useState('DNN');
     const [mode, setMode] = useState('death30');
 
+    const [softmax, setSoftmax] = useState(0);
+    const [output, setOutput] = useState(0);
+
+    const [isloading, setIsloading] = useState(0);
+
+    const model_list = ['DNN', 'ASADNN', 'ATTENTION'];
+
+
+
     const submit = () => {
+        setIsloading(1)
+        console.log(isloading)
         axios.post('http://localhost:4000/submit', {
             age: age, asa: asa, sex: sex, bmi: (weight / (Math.pow(height / 100, 2))), emop: emop,
             preop_hb: hb, preop_wbc: wbc, preop_plt: plt, preop_glu: glu,
@@ -103,7 +159,11 @@ const MainPage = () => {
             modelname: modelname, mode: mode
         }
         ).then((response) => {
-            console.log(response);
+            const data = JSON.parse(response.data[0].replaceAll("'", '"'));
+            setOutput(data.output_class);
+            setSoftmax(data.output_softmax);
+            setIsloading(0);
+
         }, (error) => {
             console.log(error);
         });
@@ -115,25 +175,58 @@ const MainPage = () => {
                 <title>Web Calculator | Some Score</title>
             </Helmet>
             <Header>
-                <div> Web Calculator </div>
-                <div> 30D mortality </div>
-                <div> Prolonged ICU stay </div>
+                <Title> Web Calculator </Title>
+                <FatText text={'What to predict?'} />
+                <Select_cat
+                    options={modeOptions}
+                    onChange={e => setMode(e.value)}
+                    placeholder={'30-day in-hospital mortality'}
+                />
+
             </Header>
             <Body>
-                <Row>
-                    <div>Simple DNN</div>
-                    <div>ASA-adjusted</div>
-                    <div>Self-Attention</div>
-                </Row>
+
                 <Row>
                     <Column>
-                        <FatText text="Model Pic goes here" />
+                        <MyCarousel interval={null} onSelect={e => setModelname(model_list[e])} >
+                            <Carousel.Item>
+                                <img
+                                    className="d-block w-100"
+                                    src={Model1}
+                                    alt="First slide"
+                                />
+                                <MyCaption>
+                                    <h3>Simple DNN</h3>
+                                </MyCaption>
+                            </Carousel.Item>
+                            <Carousel.Item>
+                                <img
+                                    className="d-block w-100"
+                                    src={Model2}
+                                    alt="Second slide"
+                                />
+                                <MyCaption>
+                                    <h3>ASA-adjusted DNN</h3>
+                                </MyCaption>
+                            </Carousel.Item>
+                            <Carousel.Item>
+                                <img
+                                    className="d-block w-100"
+                                    src={Model3}
+                                    alt="Third slide"
+                                />
+
+                                <MyCaption>
+                                    <h3>Self-attention Model</h3>
+                                </MyCaption>
+                            </Carousel.Item>
+                        </MyCarousel>
                     </Column>
                     <Column>
 
                         <MiniRow>
                             <FatText text={'Age'} className='Age' />
-                            <input
+                            <MyInput
                                 onChange={e => setAge(e.target.value)}
                                 placeholder={age}
                                 type='number'
@@ -144,11 +237,20 @@ const MainPage = () => {
                             <Select_cat
                                 options={sexOptions}
                                 onChange={e => setSex(e.value)}
+                                placeholder={'Male'}
+                            />
+                        </MiniRow>
+                        <MiniRow>
+                            <FatText text={'EM OP'} />
+                            <Select_cat
+                                options={emopOptions}
+                                onChange={e => setEmop(e.value)}
+                                placeholder={'Not emergency'}
                             />
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Height (m)'} className='Height' />
-                            <input
+                            <MyInput
                                 onChange={e => setHeight(e.target.value)}
                                 placeholder={height}
                                 type='number'
@@ -156,7 +258,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Weight (kg)'} className='Weight' />
-                            <input
+                            <MyInput
                                 onChange={e => setWeight(e.target.value)}
                                 placeholder={weight}
                                 type='number'
@@ -164,7 +266,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Hb'} className='Hb' />
-                            <input
+                            <MyInput
                                 onChange={e => setHb(e.target.value)}
                                 placeholder={hb}
                                 type='number'
@@ -172,7 +274,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'WBC'} className='WBC' />
-                            <input
+                            <MyInput
                                 onChange={e => setWbc(e.target.value)}
                                 placeholder={wbc}
                                 type='number'
@@ -180,7 +282,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Plt'} className='Plt' />
-                            <input
+                            <MyInput
                                 onChange={e => setPlt(e.target.value)}
                                 placeholder={plt}
                                 type='number'
@@ -188,7 +290,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Glucose'} className='Glc' />
-                            <input
+                            <MyInput
                                 onChange={e => setGlu(e.target.value)}
                                 placeholder={glu}
                                 type='number'
@@ -201,18 +303,12 @@ const MainPage = () => {
                             <Select_cat
                                 options={asaOptions}
                                 onChange={e => setAsa(e.value)}
-                            />
-                        </MiniRow>
-                        <MiniRow>
-                            <FatText text={'EM OP'} />
-                            <Select_cat
-                                options={emopOptions}
-                                onChange={e => setEmop(e.value)}
+                                placeholder={'1'}
                             />
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Na'} className='Na' />
-                            <input
+                            <MyInput
                                 onChange={e => setNa(e.target.value)}
                                 placeholder={na}
                                 type='number'
@@ -220,7 +316,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'K'} className='K' />
-                            <input
+                            <MyInput
                                 onChange={e => setK(e.target.value)}
                                 placeholder={k}
                                 type='number'
@@ -228,7 +324,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Albumin'} className='Alb' />
-                            <input
+                            <MyInput
                                 onChange={e => setAlb(e.target.value)}
                                 placeholder={alb}
                                 type='number'
@@ -236,7 +332,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'PT (INR)'} className='PT' />
-                            <input
+                            <MyInput
                                 onChange={e => setPt(e.target.value)}
                                 placeholder={pt}
                                 type='number'
@@ -244,7 +340,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'aPTT'} className='PTT' />
-                            <input
+                            <MyInput
                                 onChange={e => setPtt(e.target.value)}
                                 placeholder={ptt}
                                 type='number'
@@ -252,7 +348,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'ALT (GPT)'} className='GPT' />
-                            <input
+                            <MyInput
                                 onChange={e => setGpt(e.target.value)}
                                 placeholder={gpt}
                                 type='number'
@@ -260,7 +356,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'AST (GOT)'} className='GOT' />
-                            <input
+                            <MyInput
                                 onChange={e => setGot(e.target.value)}
                                 placeholder={got}
                                 type='number'
@@ -268,7 +364,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'BUN'} className='BUN' />
-                            <input
+                            <MyInput
                                 onChange={e => setBun(e.target.value)}
                                 placeholder={bun}
                                 type='number'
@@ -276,7 +372,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Creatinine'} className='Cr' />
-                            <input
+                            <MyInput
                                 onChange={e => setCr(e.target.value)}
                                 placeholder={cr}
                                 type='number'
@@ -286,10 +382,22 @@ const MainPage = () => {
                     </Column>
                 </Row>
                 <Row>
-                    <Button text={'Submit'} onClick={() => submit()}></Button>
+                    <Column>
+                        <FatText text={'Softmax: ' + String(softmax)} />
+                    </Column>
+                    <Column>
+                        <FatText text={'Output Class: ' + String(output)} />
+                    </Column>
+                    <Column>
+                        <MyButton variant="outline-primary" disabled={isloading} text={'Submit!'} onClick={() => {
+                            submit()
+                        }}>Submit</MyButton>
+
+                    </Column>
                 </Row>
 
             </Body>
+
         </Wrapper>
     )
 
