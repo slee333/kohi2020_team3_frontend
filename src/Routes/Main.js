@@ -151,10 +151,10 @@ const MainPage = () => {
         setIsloading(1)
         console.log(isloading)
         axios.post('http://localhost:4000/submit', {
-            age: age, asa: asa, sex: sex, bmi: (weight / (Math.pow(height / 100, 2))), emop: emop,
-            preop_hb: hb, preop_wbc: wbc, preop_plt: plt, preop_glu: glu,
-            preop_na: na, preop_k: k, preop_alb: alb, preop_pt: pt, preop_ptt: ptt,
-            preop_gpt: gpt, preop_got: got, preop_bun: bun, preop_cr: cr,
+            age: Number(age), asa: Number(asa), sex: sex, bmi: (weight / (Math.pow(height / 100, 2))), emop: Number(emop),
+            preop_hb: Number(hb), preop_wbc: Number(wbc), preop_plt: Number(plt), preop_glu: Number(glu),
+            preop_na: Number(na), preop_k: Number(k), preop_alb: Number(alb), preop_pt: Number(pt), preop_ptt: Number(ptt),
+            preop_gpt: Number(gpt), preop_got: Number(got), preop_bun: Number(bun), preop_cr: Number(cr),
             modelname: modelname, mode: mode
         }
         ).then((response) => {
