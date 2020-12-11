@@ -1,9 +1,8 @@
-import React, { useState, Component } from "react";
+import React, { useState } from "react";
 import Select from 'react-select';
 import styled from "styled-components";
 import { Helmet } from "react-helmet";
-import Button from "react-bootstrap/Button";
-import Spinner from 'react-bootstrap/Spinner'
+import Button from "react-bootstrap/Button"; 
 import Carousel from "react-bootstrap/Carousel";
 import FatText from "../Components/FatText";
 import axios from 'axios';
@@ -58,7 +57,7 @@ const MiniRow = styled.div`
     display: flex;
 `;
 
-const Select_cat = styled(Select)`
+const Select_Cat = styled(Select)`
     width: 70%;
 `;
 
@@ -177,7 +176,7 @@ const MainPage = () => {
             <Header>
                 <Title> Web Calculator </Title>
                 <FatText text={'What to predict?'} />
-                <Select_cat
+                <Select_Cat
                     options={modeOptions}
                     onChange={e => setMode(e.value)}
                     placeholder={'30-day in-hospital mortality'}
@@ -234,7 +233,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'Sex'} className='Sex' />
-                            <Select_cat
+                            <Select_Cat
                                 options={sexOptions}
                                 onChange={e => setSex(e.value)}
                                 placeholder={'Male'}
@@ -242,7 +241,7 @@ const MainPage = () => {
                         </MiniRow>
                         <MiniRow>
                             <FatText text={'EM OP'} />
-                            <Select_cat
+                            <Select_Cat
                                 options={emopOptions}
                                 onChange={e => setEmop(e.value)}
                                 placeholder={'Not emergency'}
@@ -300,7 +299,7 @@ const MainPage = () => {
                     <Column>
                         <MiniRow>
                             <FatText text={'ASA'} className='ASA' />
-                            <Select_cat
+                            <Select_Cat
                                 options={asaOptions}
                                 onChange={e => setAsa(e.value)}
                                 placeholder={'1'}
