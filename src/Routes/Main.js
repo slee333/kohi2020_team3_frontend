@@ -145,12 +145,12 @@ const MainPage = () => {
 
     const model_list = ['DNN', 'ASADNN', 'ATTENTION'];
 
-
+    const uri =  (process.env.NODE_ENV === "development" ? "http://localhost:4100" : 'https://cors-anywhere.herokuapp.com/https://kohi2020team3.herokuapp.com')
 
     const submit = () => {
         setIsloading(1)
         console.log(isloading)
-        axios.post('https://kohi2020team3.herokuapp.com/submit', {
+        axios.post('https://cors-anywhere.herokuapp.com/https://kohi2020team3.herokuapp.com'.concat('/submit'), {
             age: Number(age), asa: Number(asa), sex: sex, bmi: (weight / (Math.pow(height / 100, 2))), emop: Number(emop),
             preop_hb: Number(hb), preop_wbc: Number(wbc), preop_plt: Number(plt), preop_glu: Number(glu),
             preop_na: Number(na), preop_k: Number(k), preop_alb: Number(alb), preop_pt: Number(pt), preop_ptt: Number(ptt),
