@@ -150,7 +150,7 @@ const MainPage = () => {
     const submit = () => {
         setIsloading(1)
         console.log(isloading)
-        axios.get('https://aqueous-falls-89502.herokuapp.com/https://kohi2020team3.herokuapp.com'.concat('/submit'), {
+        axios.post('https://aqueous-falls-89502.herokuapp.com/https://kohi2020team3.herokuapp.com'.concat('/submit'), {
             age: Number(age), asa: Number(asa), sex: sex, bmi: (weight / (Math.pow(height / 100, 2))), emop: Number(emop),
             preop_hb: Number(hb), preop_wbc: Number(wbc), preop_plt: Number(plt), preop_glu: Number(glu),
             preop_na: Number(na), preop_k: Number(k), preop_alb: Number(alb), preop_pt: Number(pt), preop_ptt: Number(ptt),
